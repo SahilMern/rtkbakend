@@ -15,12 +15,13 @@ const productsData = require("./helper/ProductsData");
 app.use("/api/user", userrouter);
 
 app.get("/products", async (req, res) => {
-  console.log(req.query,"query");
+  // console.log(req.query, "query");
 
   const gender = req.query.gender || "";
+  console.log(gender);
   const filters = req.query.filter ? req.query.filter.split(",") : [];
   const page = parseInt(req.query.page) || 1; // Get the page number from query params
-  const limit = 10; // Items per page
+  const limit = 4; // Items per page
 
   const skip = (page - 1) * limit; // Calculate skip value for pagination
 
@@ -31,24 +32,26 @@ app.get("/products", async (req, res) => {
   if (filters.length > 0) {
     query.type = { $in: filters };
   }
-  console.log(query,"important query");
+  console.log(query, "important query");
   try {
     const totalProducts = await Products.countDocuments(query); // Get total count of products based on query
     console.log(totalProducts, "total products ");
     const productDataFromDb = await Products.find(query)
       .skip(skip) // Skip records based on page number and limit
       .limit(limit); // Limit records per page
-    console.log(Math.ceil(totalProducts / limit), "calcu");
+    // console.log(Math.ceil(totalProducts / limit), "calcu");
+    const totalPages = Math.ceil(totalProducts / limit);
+    console.log(totalPages, "totalPages ");
     return res.status(200).json({
       message: "Jai Bajarang bali ji",
       currentPage: page,
-      totalPages: Math.ceil(totalProducts / limit),
+      totalPages,
       productDataFromDb,
     });
   } catch (error) {
     return res.status(500).json({ error: "Internal Server Error" });
   }
-});
+}); 
 
 app.post("/addProducts", async (req, res) => {
   try {
@@ -64,4 +67,4 @@ app.post("/addProducts", async (req, res) => {
   }
 });
 
-app.listen(port, () => console.log(`App listening on port ${port}!`));
+app.listen(port, () => console.log(`App listening on portss ${port}!`));
