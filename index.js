@@ -7,6 +7,11 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cors());
 app.use(express.json());
 require("./Database/connection");
+const Razorpay = require('razorpay');
+const razorpay = new Razorpay({
+  key_id: 'rzp_test_e2OQAlQAua7sHE',
+  key_secret: 'AHnADnP3jc4GsFFCtwJZW3CS',
+});
 
 const userrouter = require("./Router/userRouter");
 const userModel = require("./models/userModel");
@@ -66,5 +71,51 @@ app.post("/addProducts", async (req, res) => {
       .json({ message: "Failed to add products", error: error.message });
   }
 });
+
+app.post("/payments", async(req, res) => {
+  try {
+    console.log(req.body);
+    return res.status(200).json({
+      // message:"req.body",
+      data:"hiiii",
+      status:200
+    })
+  } catch (error) {
+    console.log(error);
+  }
+})
+
+app.post('/payment', async (req, res) => {
+  console.log(req.body.requestData.total,"BODY");
+  const amountTotal = Number(req.body.requestData.total*100)
+  const amount = amountTotal; // Replace with the total amount for the products
+  const options = {
+      amount: amount * 100, // Convert to paise (Rupees * 100)
+      currency: 'INR',
+      // receipt: 'order_rcptid_11',
+  };
+
+  try {
+      const order = await razorpay.orders.create(options);
+      console.log(order,"order order");
+      // Save order details in your database
+      // Return order ID or necessary details to frontend
+      return res.json({ order });
+  } catch (error) {
+      res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/verification",async(req, res) => {
+  try {
+    // const 
+    console.log(req.body);
+    return res.status(200).json({
+      message:"hiii"
+    })
+  } catch (error) {
+    console.log(error);
+  }
+})
 
 app.listen(port, () => console.log(`App listening on portss ${port}!`));
